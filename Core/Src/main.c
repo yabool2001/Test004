@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
  *
- * uart printf test - adding printf redirecting to uart code
+ * Because printf redirecting to UART is not working without "\n" I prefer to have my own dbg_print() function
  * Tested on STM32G031K8T installed in Nucleo-G031K8 board
   ******************************************************************************
   * @file           : main.c
@@ -26,8 +26,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-// uarta printf test
+// dbg_tx() function implementation
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,8 +39,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-// uart printf test
-#define PUTCHAR_PROTOTYPE int fputc ( int ch , FILE* f )
+// dbg_tx() function implementation
+#define     UART_DBG                    huart2
+#define     HAL_UART_DBG_TIMEOUT_DUR    1000
 
 /* USER CODE END PD */
 
@@ -52,7 +54,10 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+// dbg_tx() example implementation
+uint8_t uart_tx_buff[100] ;
+const char* s = "float" ;
+float f = 1.101 ;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +65,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
+
+// dbg_tx() function implementation
+static HAL_StatusTypeDef dbg_tx ( uint8_t* buff , uint16_t len ) ;
 
 /* USER CODE END PFP */
 
@@ -99,14 +107,29 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
+    // dbg_tx() example implementation
+    //requires add "-u_printf_float" flag in: Other flag/Miscellaneous/MCU GCC Linker/Settings/C/C++ Build/Properties of the Test004 project
+    sprintf ( (char *)uart_tx_buff , "Value of %s is: %f\r\n" , s , f ) ;
+    dbg_tx ( uart_tx_buff , (uint16_t)strlen ( (const char*)uart_tx_buff ) ) ;
+
+    uint16_t s_strlen = (uint16_t) strlen ( (const char*) uart_tx_buff ) ;
+    uint16_t s_sizeof = (uint16_t) sizeof ( uart_tx_buff ) ;
+    uint16_t s_sizeof2 = (uint16_t) ( sizeof ( uart_tx_buff ) / sizeof ( uart_tx_buff[0] ) ) ;
+
+    sprintf ( (char *)uart_tx_buff , "Value of strlen is: %d\r\n" , s_strlen ) ;
+    dbg_tx ( uart_tx_buff , (uint16_t)strlen ( (const char*)uart_tx_buff ) ) ;
+    sprintf ( (char *)uart_tx_buff , "Value of sizeof is: %d\r\n" , s_sizeof ) ;
+    dbg_tx ( uart_tx_buff , (uint16_t)strlen ( (const char*)uart_tx_buff ) ) ;
+    sprintf ( (char *)uart_tx_buff , "Value of sizeof2 is: %d\r\n" , s_sizeof2 ) ;
+    dbg_tx ( uart_tx_buff , (uint16_t)strlen ( (const char*)uart_tx_buff ) ) ;
+
+    /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-      printf ( "B" ) ;
-      HAL_Delay ( 1000 ) ;
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -203,11 +226,10 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-// uarta printf test
-PUTCHAR_PROTOTYPE
+// dbg_tx() function implementation
+static HAL_StatusTypeDef dbg_tx ( uint8_t* buff , uint16_t len )
 {
-    HAL_UART_Transmit ( &huart2 , (uint8_t*) &ch , 1 , 0xFFFF ) ;
-    return ch ;
+    return HAL_UART_Transmit ( &UART_DBG , buff , len , HAL_UART_DBG_TIMEOUT_DUR ) ;
 }
 
 /* USER CODE END 4 */

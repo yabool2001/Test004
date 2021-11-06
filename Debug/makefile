@@ -62,7 +62,7 @@ main-build: Test004.elf secondary-outputs
 
 # Tool invocations
 Test004.elf: $(OBJS) $(USER_OBJS) C:\Users\mzeml\embedded\Test004\STM32G031K8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Test004.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\mzeml\embedded\Test004\STM32G031K8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Test004.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Test004.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0plus -T"C:\Users\mzeml\embedded\Test004\STM32G031K8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Test004.map" -Wl,--gc-sections -static -u_printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
